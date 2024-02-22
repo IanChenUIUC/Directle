@@ -1,0 +1,9 @@
+[package]
+name = "directle_sql"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+mysql = "24.0.0"
+ormlite = { version = "0.18.0", features = ["sqlite"] }
+tokio = "1.36.0"
