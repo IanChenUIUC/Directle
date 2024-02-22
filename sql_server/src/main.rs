@@ -1,10 +1,10 @@
-mod writer;
+mod word;
 
 use std::error::*;
 use std::result::*;
 use mysql::*;
 use mysql::prelude::*;
-use crate::writer::*;
+use crate::word::*;
 
 
 fn main() {
