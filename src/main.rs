@@ -1,8 +1,8 @@
-use std::net::{TcpListener, TcpStream};
-use std::io::BufReader;
-use std::io::BufRead;
 use std::fs;
+use std::io::BufRead;
+use std::io::BufReader;
 use std::io::Write;
+use std::net::{TcpListener, TcpStream};
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
     for stream in listener.incoming() {
@@ -26,8 +26,7 @@ fn handle_connection(mut stream: TcpStream) {
     let contents = fs::read_to_string("hello.html").unwrap();
     let length = contents.len();
 
-    let response = 
-        format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
+    let response = format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
     stream.write_all(response.as_bytes()).unwrap();
 
     println!("Request: {:#?}", http_request);
