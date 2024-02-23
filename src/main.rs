@@ -1,33 +1,46 @@
-use std::fs;
-use std::io::BufRead;
-use std::io::BufReader;
-use std::io::Write;
-use std::net::{TcpListener, TcpStream};
-fn main() {
-    let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
-    for stream in listener.incoming() {
-        let stream = stream.unwrap();
+#[macro_use]
+extern crate rocket;
 
-        handle_connection(stream);
+use rocket::serde::Serialize;
 
-        println!("Connection established!");
-    }
+#[derive(Serialize)]
+#[serde(crate = "rocket::serde")]
+struct GameInfo {
+    secret_word: String,
+    secter_word_vector: Vec<f32>,
+
+    input_word: String,
+    input_word_vector: Vec<f32>,
+
+    output_word: String,
+    output_word_vector: Vec<f32>,
 }
 
-fn handle_connection(mut stream: TcpStream) {
-    let buf_reader = BufReader::new(&mut stream);
-    let http_request: Vec<_> = buf_reader
-        .lines()
-        .map(|result| result.unwrap())
-        .take_while(|line| !line.is_empty())
-        .collect();
+#[get("/")]
+fn index() -> &'static str {
+    "Hello, world!"
+}
 
-    let status_line = "HTTP/1.1 200 OK";
-    let contents = fs::read_to_string("src/hello.html").unwrap();
-    let length = contents.len();
+#[get("/hello?<name>")]
+fn hello(name: String) -> String {
+    format!("Hello, {}!", name)
+}
 
-    let response = format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
-    stream.write_all(response.as_bytes()).unwrap();
+#[get("/info/word?<word>")]
+fn word_vector(word: String) -> String {
+    let game_info = GameInfo {
+        secret_word: "Amoung us".to_string(),
+        secter_word_vector: vec![1.0, 2.0, 3.0],
+        input_word: word,
+        input_word_vector: vec![10.1, 111., -888., 1.],
+        output_word: "Sussy baka".to_string(),
+        output_word_vector: vec![818181., 10., 1.],
+    };
 
-    println!("Request: {:#?}", http_request);
+    serde_json::to_string(&game_info).unwrap()
+}
+
+#[launch]
+fn rocket() -> _ {
+    rocket::build().mount("/", routes![index, hello, word_vector])
 }
